@@ -142,7 +142,7 @@ if (headerSlot) {
     <nav class="nav" aria-label="Principal">${navLinks}</nav>
     ${searchForm('Buscar ferramenta, marca ou código')}
     ${quoteBtn}
-    <a class="btn btn--green btn--sm header-cta" data-fill href="${wa()}" target="_blank" rel="noopener">${esc(C.telefone)}</a>
+    <a class="btn btn--green btn--sm header-cta" data-fill href="${wa('Olá! Gostaria de falar com um especialista da FeFER.')}" target="_blank" rel="noopener" aria-label="Fale com um especialista pelo WhatsApp">${icon.wa.replace('<svg', '<svg class="wa-ico"')}<span>Fale com um especialista</span></a>
     <button class="menu-btn" id="menuBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileNav">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
     </button>

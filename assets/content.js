@@ -63,17 +63,20 @@ window.FEFER_SITE = {
    {
     "img": "https://feferferramentas.com.br/wp-content/uploads/2026/02/Banner-3-1920x839-1.png",
     "link": "catalogo.html",
-    "alt": "Catálogo completo: confira todos os produtos e especificações"
+    "alt": "Catálogo completo: confira todos os produtos e especificações",
+    "titulo": "Catálogo completo"
    },
    {
     "img": "https://feferferramentas.com.br/wp-content/uploads/2026/02/Banner-2-1920x839_.png",
     "link": "catalogo.html",
-    "alt": "Confira nossa linha completa de produtos de alta precisão para usinagem"
+    "alt": "Confira nossa linha completa de produtos de alta precisão para usinagem",
+    "titulo": "Linha completa"
    },
    {
     "img": "https://feferferramentas.com.br/wp-content/uploads/2026/01/Banner-1920x839-1.png",
     "link": "catalogo.html?cat=fresamento",
-    "alt": "Fresas em metal duro, precisão em cada execução"
+    "alt": "Fresas em metal duro, precisão em cada execução",
+    "titulo": "Fresas em metal duro"
    }
   ],
   "destaques": [

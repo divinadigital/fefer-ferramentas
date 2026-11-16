@@ -34,13 +34,13 @@
         <div class="stat"><b><span data-count id="stBrands">12</span><em>+</em></b><span>Marcas parceiras</span></div>
       </div>
     </div>
-    <div data-reveal>
-      <div class="slider" id="slider" aria-roledescription="carrossel" aria-label="Destaques"></div>
-      <div class="slider-ui">
-        <div class="dots" id="dots" style="display:flex;gap:10px;flex:1"></div>
+    <div class="showcase" data-reveal>
+      <div class="deck" id="deck" role="region" aria-roledescription="carrossel" aria-label="Destaques da FeFER" tabindex="0"></div>
+      <div class="deck-ui">
+        <div class="deck-tabs" id="deckTabs" role="tablist" aria-label="Escolher destaque"></div>
         <div class="arrows">
-          <button class="arrow" data-fill id="prev" aria-label="Banner anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg></button>
-          <button class="arrow" data-fill id="next" aria-label="Próximo banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button class="arrow" data-fill id="prev" aria-label="Destaque anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="arrow" data-fill id="next" aria-label="Próximo destaque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></button>
         </div>
       </div>
     </div>
@@ -193,39 +193,85 @@ $('nameTrack').innerHTML = names + names;
 const bandWords = [Object.values(F.CATS).filter(n => n !== 'Insertos').slice(0, 7), ['Precisão','Eficiência','Suporte técnico','Qualidade','Usinagem']];
 document.querySelectorAll('.band .row').forEach((r, i) => r.innerHTML = Array(6).fill(bandWords[i].map(t => `<span>${F.esc(t)}</span>`).join('')).join(''));
 
-/* ---------- Banners ---------- */
+/* ---------- Vitrine de destaques: cartões empilhados ----------
+   O destaque ativo fica na frente; os próximos aparecem atrás, como um baralho.
+   Ao trocar, o cartão da frente sai para o lado e volta para o fundo da pilha.
+   Funciona com clique nas abas, setas, teclado (← →) e arrastando no celular. */
 const B = H.banners || [];
-$('slider').innerHTML = B.map((b, i) => `<a class="slide${i ? '' : ' on'}" href="${F.esc(b.link)}" aria-label="${F.esc(b.alt)}"${i ? ' aria-hidden="true" tabindex="-1"' : ''}>
-  <img src="${F.esc(b.img)}" alt="${F.esc(b.alt)}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async"></a>`).join('');
-$('dots').innerHTML = B.map((b, i) => `<button class="dot" aria-label="Banner ${i + 1}"><i></i></button>`).join('');
-const slides = [...document.querySelectorAll('.slide')], dots = [...document.querySelectorAll('.dot')];
-let cur = 0, timer, prog, paused = false;
+const deck = $('deck'), tabsBox = $('deckTabs');
+deck.innerHTML = B.map((b, i) => `<a class="deck-card" href="${F.esc(b.link)}" aria-label="${F.esc(b.alt)}" draggable="false">
+  <img src="${F.esc(b.img)}" alt="${F.esc(b.alt)}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" draggable="false">
+  <span class="deck-shine" aria-hidden="true"></span></a>`).join('');
+tabsBox.innerHTML = B.map((b, i) => `<button class="deck-tab" role="tab" aria-selected="${i === 0}" type="button">
+  <span class="deck-num">0${i + 1}</span><span class="deck-lbl">${F.esc(b.titulo || 'Destaque ' + (i + 1))}</span><i class="deck-bar"><b></b></i></button>`).join('');
+const cards = [...deck.children], tabs = [...tabsBox.children], N = cards.length;
+let cur = 0, timer, prog, paused = false, busy = false;
 const DUR = 6;
-function go(n) {
-  if (!slides.length) return;
-  const prev = slides[cur]; cur = (n + slides.length) % slides.length; const next = slides[cur];
-  if (prev !== next) {
-    if (M && !reduce) {
-      M.animate(prev, { opacity:[1,0] }, { duration:.7, ease });
-      M.animate(next, { opacity:[0,1] }, { duration:.7, ease });
-      M.animate(next.querySelector('img'), { scale:[1.06,1] }, { duration:1.2, ease });
-    }
-    prev.classList.remove('on'); prev.setAttribute('aria-hidden', 'true'); prev.tabIndex = -1;
-    next.classList.add('on'); next.removeAttribute('aria-hidden'); next.removeAttribute('tabindex');
-  }
-  dots.forEach((d, i) => { d.firstElementChild.style.transform = `scaleX(${i < cur ? 1 : 0})`; d.setAttribute('aria-current', i === cur); });
+/* posição de cada cartão conforme a distância até o ativo (0 = frente) */
+const pose = k => k === 0
+  ? { x:0, y:0, scale:1, rotate:0, opacity:1, filter:'brightness(1)' }
+  : { x: k * 40, y: -k * 38, scale: 1 - k * .05, rotate: k * 2, opacity: k > 2 ? 0 : 1 - k * .18, filter:`brightness(${1 - k * .28})` };
+function layout(animate) {
+  cards.forEach((c, i) => {
+    const k = (i - cur + N) % N;
+    c.style.zIndex = 10 - k;
+    c.toggleAttribute('inert', k !== 0);
+    c.setAttribute('aria-hidden', k !== 0);
+    if (M && !reduce) M.animate(c, pose(k), animate ? { type:'spring', stiffness:260, damping:28 } : { duration:0 });
+    else c.style.opacity = k ? 0 : 1;
+  });
+}
+function go(n, dir = 1) {
+  if (!N || busy) return;
+  n = (n + N) % N;
+  const prev = cards[cur], changed = n !== cur;
+  cur = n;
+  if (changed && M && !reduce) {
+    /* o cartão que sai voa para o lado e depois assume seu lugar na pilha */
+    busy = true;
+    prev.style.zIndex = 20;
+    M.animate(prev, { x: dir > 0 ? -140 : 140, y: 30, rotate: dir > 0 ? -7 : 7, opacity: 0 }, { duration:.32, ease:[.4, 0, 1, 1] })
+      .then(() => { layout(true); busy = false; });
+    M.animate(cards[cur].querySelector('img'), { scale:[1.06, 1] }, { duration:1.1, ease });
+  } else layout(changed);
+  tabs.forEach((t, i) => { t.setAttribute('aria-selected', i === cur); t.querySelector('b').style.transform = `scaleX(${i < cur ? 1 : 0})`; });
   prog && prog.stop && prog.stop();
-  const bar = dots[cur].firstElementChild;
-  if (M && !reduce) prog = M.animate(bar, { scaleX:[0,1] }, { duration:DUR, ease:'linear' });
+  const bar = tabs[cur].querySelector('b');
+  if (M && !reduce) { prog = M.animate(bar, { scaleX:[0, 1] }, { duration:DUR, ease:'linear' }); if (paused) prog.pause(); }
   else bar.style.transform = 'scaleX(1)';
   clearTimeout(timer); if (!paused) timer = setTimeout(() => go(cur + 1), DUR * 1000);
 }
-dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
-$('prev').addEventListener('click', () => go(cur - 1));
-$('next').addEventListener('click', () => go(cur + 1));
-/* pausa quando o mouse está em cima, para o visitante conseguir ler */
-$('slider').addEventListener('pointerenter', () => { paused = true; clearTimeout(timer); prog && prog.pause && prog.pause(); });
-$('slider').addEventListener('pointerleave', () => { paused = false; prog && prog.play && prog.play(); go(cur); });
+tabs.forEach((t, i) => t.addEventListener('click', () => go(i, i >= cur ? 1 : -1)));
+$('prev').addEventListener('click', () => go(cur - 1, -1));
+$('next').addEventListener('click', () => go(cur + 1, 1));
+deck.addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(cur + 1, 1); if (e.key === 'ArrowLeft') go(cur - 1, -1); });
+
+/* pausa com o mouse em cima, para dar tempo de ler; inclinação leve acompanhando o cursor */
+const showcase = document.querySelector('.showcase');
+showcase.addEventListener('pointerenter', e => { if (e.pointerType === 'touch') return; paused = true; clearTimeout(timer); prog && prog.pause && prog.pause(); });
+showcase.addEventListener('pointerleave', e => {
+  if (e.pointerType === 'touch') return;
+  paused = false; prog && prog.play && prog.play();
+  const left = prog && prog.duration ? (1 - (prog.time / prog.duration)) * DUR : DUR;
+  clearTimeout(timer); timer = setTimeout(() => go(cur + 1), Math.max(.4, left) * 1000);
+  deck.style.setProperty('--rx', '0deg'); deck.style.setProperty('--ry', '0deg');
+});
+if (!reduce && matchMedia('(hover:hover)').matches) deck.addEventListener('pointermove', e => {
+  const r = deck.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+  deck.style.setProperty('--rx', (y * -5) + 'deg'); deck.style.setProperty('--ry', (x * 7) + 'deg');
+  deck.style.setProperty('--sx', (x * 100 + 50) + '%'); deck.style.setProperty('--sy', (y * 100 + 50) + '%');
+});
+
+/* arrastar para os lados no celular */
+let sx = null, sy = 0, moved = false;
+deck.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; moved = false; });
+deck.addEventListener('pointerup', e => {
+  if (sx === null) return;
+  const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { moved = true; go(cur + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); }
+});
+deck.addEventListener('click', e => { if (moved) { e.preventDefault(); moved = false; } }, true);
+layout(false);
 go(0);
 
 /* ---------- Rolagem: parallax, faixas com velocidade, compromisso ---------- */
