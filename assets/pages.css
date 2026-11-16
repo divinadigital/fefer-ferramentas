@@ -99,7 +99,8 @@
 .dark-page .sec-head p{color:#a9b9b0}
 .dark-page .chip{background:transparent;color:#fff;border-color:rgba(255,255,255,.2)}
 .dark-page .chip .fill{background:#fff}
-.dark-page .chip:hover{color:var(--ink);border-color:#fff}
+.dark-page .chip:hover{color:#fff;border-color:var(--yellow);background:rgba(255,255,255,.06)}
+.dark-page .chip[aria-pressed="true"]:hover{color:var(--ink);background:var(--yellow)}
 .dark-page .chip[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:var(--ink)}
 .machines{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
 .mq{position:relative;display:flex;flex-direction:column;background:#141d18;border:1px solid rgba(255,255,255,.08);border-radius:24px;overflow:hidden;transition:border-color .4s,transform .6s var(--ease-out)}
