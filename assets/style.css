@@ -131,6 +131,7 @@ h2{font-size:clamp(2.4rem,5vw,4.2rem)}
 /* ============ VELOCITY BAND ============ */
 .band{background:var(--yellow);color:var(--ink);overflow:hidden;padding:22px 0;transform:rotate(-1.6deg);margin:0 -20px;position:relative;z-index:3;box-shadow:0 20px 40px -24px rgba(0,0,0,.4)}
 .band.alt{background:var(--green-800);color:#fff;transform:rotate(1.2deg);margin-top:-14px;z-index:2}
+.hero + .band{margin-top:-48px}
 .band .row{display:flex;white-space:nowrap;will-change:transform}
 .band .row span{font-family:var(--display);font-weight:800;font-size:clamp(2rem,4.4vw,3.6rem);text-transform:uppercase;padding-right:2.2rem;display:inline-flex;align-items:center;gap:2.2rem}
 .band .row span::after{content:"";width:.28em;height:.28em;border-radius:50%;background:var(--green-700)}
