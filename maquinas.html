@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Máquinas | FeFER</title>
+<meta name="description" content="Tornos convencionais e CNC, fresadoras ferramenteiras e centros de usinagem Quazar, Pinnacle, Feeler e Euron Z-MaT na FeFER.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/pages.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body data-page="maquinas">
+<div id="site-header"></div>
+
+<main class="dark-page" id="main">
+<section class="page-hero" style="background:#0c1410">
+  <span class="ghost" aria-hidden="true">Máquinas</span>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Você está em" data-reveal><a href="index.html">Início</a><span aria-hidden="true">/</span><span>Máquinas</span></nav>
+    <h1 data-split>Máquinas para <span class="hl">produzir mais</span></h1>
+    <p class="lead" data-reveal>Tornos convencionais e CNC, fresadoras ferramenteiras e centros de usinagem, com orientação técnica para escolher o equipamento certo para a sua produção.</p>
+    <div class="hero-ctas" data-reveal>
+      <a class="btn btn--solid" data-fill id="mqWa" href="#" target="_blank" rel="noopener">Falar com consultor</a>
+      <a class="btn btn--ghost-light" data-fill="y" href="#lista">Ver máquinas</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="lista">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow" style="color:var(--yellow)" data-reveal>Linha de máquinas</span>
+        <h2 data-reveal><span id="mqCount">18</span> equipamentos</h2>
+      </div>
+      <div class="chips" id="chips" data-reveal role="group" aria-label="Filtrar máquinas por tipo"></div>
+    </div>
+    <div class="machines" id="machines"></div>
+  </div>
+</section>
+
+<div id="site-cta" data-cta="maquinas"></div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/content.js"></script>
+<script src="assets/products.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+<script src="assets/main.js"></script>
+<script>
+(() => {
+const F = window.FEFER, M = F.M, reduce = F.reduce, ease = F.ease;
+const type = name => {
+  const n = F.norm(name);
+  if (n.includes('centro de usinagem') || n.includes('centros de usinagem')) return 'Centros de usinagem';
+  if (n.includes('fresadora')) return 'Fresadoras';
+  if (n.includes('cnc') || n.includes('torneamento')) return 'Tornos CNC';
+  return 'Tornos convencionais';
+};
+const list = F.PRODUCTS.filter(p => p.cat === 'maquinas').map(p => ({ ...p, type: type(p.name) }));
+document.getElementById('mqWa').href = F.wa('Olá! Quero saber mais sobre as máquinas.');
+const types = ['Todas', ...new Set(list.map(m => m.type))];
+document.getElementById('mqCount').textContent = list.length;
+
+document.getElementById('chips').innerHTML = types.map((t, i) => {
+  const n = t === 'Todas' ? list.length : list.filter(m => m.type === t).length;
+  return `<button class="chip" data-type="${t}" aria-pressed="${i === 0}">${t} <span style="opacity:.6">${n}</span></button>`;
+}).join('');
+
+const wrap = document.getElementById('machines');
+const cardHTML = (m, featured) => {
+  const img = m.img[0] || {};
+  const msg = `Olá! Gostaria de mais informações sobre: ${m.name}`;
+  return `<article class="mq${featured ? ' featured' : ''}" data-type="${m.type}" data-reveal>
+    <a class="pic" href="${F.productUrl(m)}" aria-label="${F.esc(m.name)}">
+      <span class="badge">${m.type}</span>
+      <img src="${F.esc(img.s)}" srcset="${F.esc(img.ss)}" sizes="(max-width:640px) 92vw, ${featured ? '700px' : '600px'}" alt="${F.esc(m.name)}" loading="lazy" decoding="async">
+    </a>
+    <div class="body">
+      <h3>${F.esc(m.name)}</h3>
+      <p>${F.esc(m.sum.length >= 159 ? m.sum.replace(/\s+\S*$/, '') + '...' : m.sum)}</p>
+      <div class="actions">
+        <a class="btn btn--solid btn--sm" data-fill href="${F.wa(msg)}" target="_blank" rel="noopener">Solicitar proposta</a>
+        <a class="btn btn--ghost-dark btn--sm" data-fill="y" href="${F.productUrl(m)}">Detalhes</a>
+      </div>
+    </div>
+  </article>`;
+};
+function render(t) {
+  const items = list.filter(m => t === 'Todas' || m.type === t);
+  wrap.innerHTML = items.map((m, i) => cardHTML(m, i === 0)).join('');
+  return wrap.children;
+}
+render('Todas');
+
+document.querySelectorAll('#chips .chip').forEach((c, _, all) => c.addEventListener('click', () => {
+  all.forEach(x => x.setAttribute('aria-pressed', x === c));
+  render(c.dataset.type);
+  F.enhance(wrap);
+}));
+})();
+</script>
+</body>
+</html>

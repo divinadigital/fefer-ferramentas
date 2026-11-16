@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Produto | FeFER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/pages.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body data-page="catalogo">
+<div id="site-header"></div>
+
+<main id="main">
+<section class="sec" style="padding-top:36px">
+  <div class="wrap" id="view"></div>
+</section>
+
+<section class="sec" id="relatedSec" style="padding-top:0" hidden>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow" data-reveal>Da mesma categoria</span>
+        <h2 data-reveal>Você também<br>pode precisar</h2>
+      </div>
+      <a class="btn btn--dark btn--sm" data-fill id="relatedAll" href="catalogo.html" data-reveal>Ver categoria</a>
+    </div>
+    <div class="products" id="related"></div>
+  </div>
+</section>
+
+<div id="site-cta" data-cta="produto"></div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/content.js"></script>
+<script src="assets/products.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+<script src="assets/main.js"></script>
+<script>
+(() => {
+const F = window.FEFER, M = F.M, reduce = F.reduce, ease = F.ease;
+const p = F.PRODUCTS.find(x => x.slug === F.param('p'));
+const view = document.getElementById('view');
+
+if (!p) {
+  view.innerHTML = `<div class="empty" data-reveal>
+    <h3>Produto não encontrado</h3>
+    <p>O link pode estar desatualizado. Veja o catálogo completo ou fale com a gente.</p>
+    <a class="btn btn--green" data-fill href="catalogo.html">Ir para o catálogo</a>
+  </div>`;
+  return;
+}
+
+const catName = F.CATS[p.cat] || '';
+document.title = `${p.name} | FeFER`;
+const meta = document.createElement('meta'); meta.name = 'description'; meta.content = p.sum; document.head.append(meta);
+const imgs = p.img.length ? p.img : [{ s:'', t:'', ss:'' }];
+const inList = F.Quote.has(p.slug);
+
+view.innerHTML = `
+  <nav class="crumbs dark" aria-label="Você está em" data-reveal style="margin-bottom:26px">
+    <a href="index.html">Início</a><span aria-hidden="true">/</span>
+    <a href="catalogo.html">Produtos</a><span aria-hidden="true">/</span>
+    <a href="${F.catUrl(p.cat)}">${F.esc(catName)}</a>
+  </nav>
+  <div class="pd">
+    <div class="gallery" data-reveal>
+      <div class="g-main" id="gMain">
+        <span class="badge green">${F.esc(catName)}</span>
+        <img id="gImg" src="${F.esc(imgs[0].s)}" alt="${F.esc(p.name)}">
+      </div>
+      ${imgs.length > 1 ? `<div class="g-thumbs" id="gThumbs">${imgs.map((im, i) =>
+        `<button aria-label="Ver imagem ${i + 1}" aria-current="${i === 0}" data-src="${F.esc(im.s)}"><img src="${F.esc(im.t || im.s)}" alt=""></button>`).join('')}</div>` : ''}
+    </div>
+    <div class="pd-info">
+      <div class="pd-tags" data-reveal>
+        <a class="badge" href="${F.catUrl(p.cat)}">${F.esc(catName)}</a>
+        ${p.sub.map(s => `<a class="badge green" href="${F.catUrl(p.cat)}&sub=${encodeURIComponent(s)}">${F.esc(s)}</a>`).join('')}
+      </div>
+      <h1 data-split>${F.esc(p.name)}</h1>
+      ${p.short ? `<div class="pd-short rich" data-reveal>${p.short}</div>` : `<p class="pd-short" data-reveal>${F.esc(p.sum)}</p>`}
+      <div class="pd-ctas" data-reveal>
+        <a class="btn btn--solid" data-fill href="${F.wa('Olá! Gostaria de um orçamento para: ' + p.name)}" target="_blank" rel="noopener">${F.icon.wa.replace('<svg', '<svg width="18" height="18"')} Solicitar orçamento</a>
+        <button class="btn btn--line-dark${inList ? ' on' : ''}" data-fill="y" type="button" data-quote="${F.esc(p.slug)}" data-label aria-pressed="${inList}"><span class="lbl">${inList ? 'Na lista de orçamento' : 'Adicionar à lista'}</span></button>
+        <button class="btn btn--line-dark" data-fill="x" id="share" type="button">Compartilhar</button>
+      </div>
+      <div class="perks" data-reveal>
+        <div class="perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>Suporte técnico na escolha</div>
+        <div class="perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Atendimento em toda SC</div>
+        <div class="perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3.4-7"/><path d="M12 7v5l3 2"/></svg>Resposta ágil no WhatsApp</div>
+      </div>
+    </div>
+  </div>
+  ${p.desc ? `<div class="desc-box" data-reveal><h2>Descrição</h2><div class="rich table-scroll">${p.desc}</div></div>` : ''}
+`;
+
+/* o botão de lista muda de estilo quando o item entra na lista */
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pd-ctas [data-quote]');
+  if (b) setTimeout(() => b.classList.toggle('on', F.Quote.has(p.slug)));
+});
+
+/* galeria: troca de imagem + zoom que segue o cursor */
+const gMain = document.getElementById('gMain'), gImg = document.getElementById('gImg');
+document.querySelectorAll('#gThumbs button').forEach((b, _, all) => b.addEventListener('click', () => {
+  all.forEach(x => x.setAttribute('aria-current', x === b));
+  if (M && !reduce) M.animate(gImg, { opacity:[1,0], scale:[1,.96] }, { duration:.18 }).then(() => {
+    gImg.src = b.dataset.src; M.animate(gImg, { opacity:[0,1], scale:[.96,1] }, { duration:.4, ease });
+  }); else gImg.src = b.dataset.src;
+}));
+if (matchMedia('(hover:hover)').matches) {
+  gMain.addEventListener('pointermove', e => {
+    const r = gMain.getBoundingClientRect();
+    gMain.style.setProperty('--ox', ((e.clientX - r.left) / r.width * 100) + '%');
+    gMain.style.setProperty('--oy', ((e.clientY - r.top) / r.height * 100) + '%');
+  });
+  gMain.addEventListener('pointerenter', () => gMain.classList.add('zoom'));
+  gMain.addEventListener('pointerleave', () => gMain.classList.remove('zoom'));
+}
+
+document.getElementById('share').addEventListener('click', async () => {
+  try {
+    if (navigator.share) await navigator.share({ title: p.name, url: location.href });
+    else { await navigator.clipboard.writeText(location.href); F.toast('Link copiado'); }
+  } catch (e) { /* compartilhamento cancelado */ }
+});
+
+/* relacionados: mesma subcategoria primeiro */
+const related = F.PRODUCTS.filter(x => x.cat === p.cat && x.slug !== p.slug)
+  .sort((a, b) => (b.sub.some(s => p.sub.includes(s)) - a.sub.some(s => p.sub.includes(s))))
+  .slice(0, 4);
+if (related.length) {
+  document.getElementById('relatedSec').hidden = false;
+  document.getElementById('related').innerHTML = related.map(x => F.card(x)).join('');
+  document.getElementById('relatedAll').href = F.catUrl(p.cat);
+}
+})();
+</script>
+</body>
+</html>

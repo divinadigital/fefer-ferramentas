@@ -1,0 +1,6 @@
+# Fica fora do GitHub: senha do admin e cópias de segurança
+config/
+backups/
+uploads/
+*.tmp
+__pycache__/

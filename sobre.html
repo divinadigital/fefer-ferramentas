@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sobre a FeFER | Ferramentas para Usinagem</title>
+<meta name="description" content="Somos apaixonados por usinagem de alta qualidade. A FeFER atua em todo o estado de Santa Catarina com ferramentas selecionadas e suporte técnico especializado.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/pages.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body data-page="sobre">
+<div id="site-header"></div>
+
+<main id="main">
+<section class="page-hero">
+  <span class="ghost" aria-hidden="true">FeFER</span>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Você está em" data-reveal><a href="index.html">Início</a><span aria-hidden="true">/</span><span>Sobre</span></nav>
+    <h1 id="title"></h1>
+    <p class="lead" data-reveal id="sub"></p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap about">
+    <figure class="photo" data-reveal id="photo">
+      <div class="frame"><img id="photoBg" alt=""></div>
+      <img class="cut" id="photoCut" alt="Equipe FeFER">
+      <figcaption class="tag">Sobre nós</figcaption>
+    </figure>
+    <div class="text">
+      <span class="eyebrow" data-reveal style="margin-bottom:18px">Quem somos</span>
+      <p class="big" id="big"></p>
+      <div id="paras"></div>
+    </div>
+  </div>
+</section>
+
+<div class="band" aria-hidden="true"><div class="row" data-velocity="1"></div></div>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow" data-reveal>Como trabalhamos</span>
+        <h2 data-reveal>Nossos<br>diferenciais</h2>
+      </div>
+      <p data-reveal>Uma atuação consultiva, do entendimento da aplicação até o suporte depois da compra.</p>
+    </div>
+    <div class="values" id="values"></div>
+  </div>
+</section>
+
+<section class="sec brands" id="marcas">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow" data-reveal>Parceiros</span>
+        <h2 data-reveal>Marcas em destaque</h2>
+      </div>
+      <p data-reveal>Fabricantes que são referência em qualidade e durabilidade.</p>
+    </div>
+  </div>
+  <div class="loop" style="--dur:34s"><div class="track" id="logoTrack"></div></div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sc-band" data-reveal>
+      <div>
+        <h2>Presentes em <em>todo o estado</em> de Santa Catarina</h2>
+      </div>
+      <div>
+        <p>Da nossa base em Criciúma, atendemos indústrias, ferramentarias e oficinas de usinagem em todo o estado.</p>
+        <a class="btn btn--solid" data-fill href="contato.html">Ver endereço e contatos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-cta" data-cta="sobre"></div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/content.js"></script>
+<script src="assets/products.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+<script src="assets/main.js"></script>
+<script>
+(() => {
+const F = window.FEFER, reduce = F.reduce, S = F.SITE, A = S.sobre || {};
+const $ = id => document.getElementById(id);
+
+$('title').innerHTML = F.mark(A.titulo); $('title').setAttribute('data-split', '');
+$('sub').textContent = A.subtitulo || '';
+$('photoBg').src = A.foto || ''; $('photoCut').src = A.recorte || A.foto || '';
+$('paras').innerHTML = (A.paragrafos || []).map(t => `<p data-reveal>${F.esc(t)}</p>`).join('');
+$('values').innerHTML = (A.diferenciais || []).map(d => `<article class="value" data-reveal>
+  <div class="ico"><img src="${F.esc(d.icone)}" alt=""></div>
+  <h3>${F.esc(d.titulo)}</h3><p>${F.esc(d.texto)}</p></article>`).join('');
+$('logoTrack').innerHTML = (S.marcas?.logos || []).map(l => `<div class="logo-item"><img src="${F.esc(l.logo)}" alt="${F.esc(l.nome)}" loading="lazy"></div>`).join('').repeat(4);
+const words = ['Análise técnica', 'Seleção', 'Suporte', 'Parceria', 'Santa Catarina'];
+document.querySelector('.band .row').innerHTML = Array(6).fill(words.map(t => `<span>${t}</span>`).join('')).join('');
+
+/* frase grande: palavras acendem com a rolagem */
+const big = $('big');
+big.innerHTML = (A.destaque || '').split(/\s+/).map(w => `<span class="w${/\*/.test(w) ? ' y' : ''}">${F.esc(w.replace(/\*/g, ''))}</span>`).join(' ');
+const ws = [...big.querySelectorAll('.w')];
+const row =document.querySelector('.band .row');
+let pos = 0;
+function frame() {
+  const r = big.getBoundingClientRect(), vh = innerHeight;
+  const lit = Math.min(1, Math.max(0, (vh * .8 - r.top) / (vh * .5))) * ws.length;
+  ws.forEach((w, i) => w.style.opacity = i < lit ? 1 : .15);
+  pos -= .6; const w = row.scrollWidth / 6; if (pos <= -w) pos += w;
+  row.style.transform = `translate3d(${pos}px,0,0)`;
+  requestAnimationFrame(frame);
+}
+if (!reduce) requestAnimationFrame(frame); else ws.forEach(w => w.style.opacity = 1);
+})();
+</script>
+</body>
+</html>

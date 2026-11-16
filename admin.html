@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | FeFER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/admin.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="login">
+  <form class="login-box" id="loginForm">
+    <img src="https://feferferramentas.com.br/wp-content/uploads/2023/06/Logo-4cm-completa.png" alt="FeFER" class="login-logo">
+    <h1>Área do administrador</h1>
+    <p class="muted">Edite produtos, textos, banners e contatos do site.</p>
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" autocomplete="current-password" required>
+    <button class="b b-primary" type="submit">Entrar</button>
+    <p class="erro" id="loginErro" role="alert"></p>
+    <div class="aviso" id="semServidor" hidden>
+      <b>Modo sem servidor.</b> Esta página foi aberta sem o servidor do site, então não dá para salvar direto.
+      Você pode editar e baixar os arquivos atualizados, ou abrir pelo <code>python server.py</code>.
+      <button class="b" type="button" id="entrarOffline">Editar mesmo assim</button>
+    </div>
+  </form>
+</div>
+
+<!-- PAINEL -->
+<div class="app" id="app" hidden>
+  <aside class="side">
+    <div class="brand"><img src="https://feferferramentas.com.br/wp-content/uploads/2023/06/Logo-4cm-completa.png" alt="FeFER"><span>Admin</span></div>
+    <nav id="tabs" aria-label="Seções"></nav>
+    <div class="side-foot">
+      <a class="b b-ghost" href="index.html" target="_blank" rel="noopener">Ver o site</a>
+      <button class="b b-ghost" id="sair" type="button">Sair</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="b b-ghost menu" id="menu" type="button" aria-label="Menu">☰</button>
+      <h1 id="secTitle">Painel</h1>
+      <span class="estado" id="estado">Tudo salvo</span>
+      <button class="b" id="baixar" type="button" title="Baixa content.js e products.js">Baixar arquivos</button>
+      <button class="b b-primary" id="salvar" type="button" disabled>Salvar e publicar</button>
+    </header>
+    <section class="content" id="content"></section>
+  </div>
+</div>
+
+<!-- editor de produto -->
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-bg" data-close></div>
+  <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer-head"><h2 id="drawerTitle">Produto</h2><button class="b b-ghost" type="button" data-close aria-label="Fechar">✕</button></div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-foot">
+      <button class="b b-danger" type="button" id="excluir">Excluir produto</button>
+      <span style="flex:1"></span>
+      <button class="b b-primary" type="button" data-close>Concluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/content.js"></script>
+<script src="assets/products.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>

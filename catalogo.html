@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo de Produtos | FeFER</title>
+<meta name="description" content="Catálogo FeFER: fixação, fresamento, furação, medição, rosqueamento, abrasivos, parafusos, insertos, afiadoras e máquinas para usinagem.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/pages.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body data-page="catalogo">
+<div id="site-header"></div>
+
+<main id="main">
+<section class="page-hero">
+  <span class="ghost" aria-hidden="true" id="ghost">Catálogo</span>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Você está em" data-reveal><a href="index.html">Início</a><span aria-hidden="true">/</span><a href="catalogo.html">Produtos</a><span aria-hidden="true" id="crumbSep" hidden>/</span><span id="crumbCat"></span></nav>
+    <h1 id="title">Nosso <span class="hl">catálogo</span></h1>
+    <p class="lead" id="lead" data-reveal>Ferramentas selecionadas para garantir desempenho do primeiro ao último corte. Monte sua lista com o botão <b>+</b> e peça o orçamento de tudo numa mensagem só.</p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:48px">
+  <div class="wrap cat-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Filtros">
+      <div class="side-box">
+        <h4>Categorias</h4>
+        <div class="side-list" id="catList" role="list"><span class="side-ind" id="sideInd" aria-hidden="true"></span></div>
+      </div>
+      <div class="side-cta">
+        <h4>Não encontrou?</h4>
+        <p>Trabalhamos com mais itens do que os listados aqui. Fale com a gente.</p>
+        <a class="btn btn--solid btn--sm" data-fill id="sideWa" href="#" target="_blank" rel="noopener">Pedir ao especialista</a>
+      </div>
+    </aside>
+
+    <div>
+      <div class="toolbar">
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="q" placeholder="Buscar por nome, medida, marca ou código" aria-label="Buscar no catálogo" autocomplete="off">
+        </div>
+        <div class="select">
+          <select id="sort" aria-label="Ordenar">
+            <option value="rel">Relevância</option>
+            <option value="az">Nome A a Z</option>
+            <option value="za">Nome Z a A</option>
+          </select>
+        </div>
+        <button class="btn btn--dark btn--sm mobile-filter" data-fill id="filterBtn" aria-expanded="false" aria-controls="sidebar">Categorias</button>
+      </div>
+      <p class="result-count" id="count" aria-live="polite"></p>
+      <div class="sub-chips" id="subs"></div>
+      <div class="products cols-3" id="grid"></div>
+      <div class="empty" id="empty" hidden>
+        <h3>Nenhum produto encontrado</h3>
+        <p>Tente outro termo ou fale com a nossa equipe. Podemos ter o item fora do catálogo.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <a class="btn btn--green" data-fill id="emptyWa" href="#" target="_blank" rel="noopener">Perguntar no WhatsApp</a>
+          <button class="btn btn--line-dark" data-fill="y" id="clearAll" type="button">Limpar busca</button>
+        </div>
+      </div>
+      <div class="center" id="moreWrap"><button class="btn btn--dark" data-fill id="more">Carregar mais</button></div>
+    </div>
+  </div>
+</section>
+
+<div id="site-cta" data-cta="catalogo"></div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/content.js"></script>
+<script src="assets/products.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+<script src="assets/main.js"></script>
+<script>
+(() => {
+const F = window.FEFER, M = F.M, reduce = F.reduce, ease = F.ease;
+const PAGE = 18;
+const state = { cat: F.param('cat') || '', sub: F.param('sub') || '', q: F.param('q') || '', sort: 'rel', shown: PAGE };
+if (state.cat && !F.CATS[state.cat]) state.cat = '';
+
+const $ = id => document.getElementById(id);
+const grid = $('grid'), qInput = $('q');
+qInput.value = state.q;
+$('sideWa').href = F.wa('Olá! Não encontrei um item no catálogo, vocês trabalham com ele?');
+
+/* índice de busca sem acentos */
+const idx = F.PRODUCTS.map(p => ({ p, hay: F.norm([p.name, F.CATS[p.cat], p.sub.join(' '), p.sum].join(' ')) }));
+
+/* ---------- categorias com indicador que desliza até a opção escolhida ---------- */
+const list = $('catList'), ind = $('sideInd');
+const all = [['', 'Todos os produtos', F.PRODUCTS.length], ...Object.entries(F.CATS).map(([s, n]) => [s, n, F.countByCat[s] || 0])];
+list.insertAdjacentHTML('beforeend', all.map(([s, n, c]) =>
+  `<button class="side-link" role="listitem" data-cat="${s}" aria-current="${s === state.cat}">${F.esc(n)}<small>${c}</small></button>`).join(''));
+function moveInd(btn, animate) {
+  const to = { y: btn.offsetTop, h: btn.offsetHeight };
+  if (M) M.animate(ind, { y: to.y, height: to.h + 'px' }, animate && !reduce ? { type:'spring', stiffness:420, damping:34 } : { duration:0 });
+  else { ind.style.transform = `translateY(${to.y}px)`; ind.style.height = to.h + 'px'; }
+}
+const current = () => list.querySelector('.side-link[aria-current="true"]');
+list.querySelectorAll('.side-link').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.cat === state.cat) return;
+  state.cat = b.dataset.cat; state.sub = ''; state.shown = PAGE;
+  list.querySelectorAll('.side-link').forEach(x => x.setAttribute('aria-current', x === b));
+  moveInd(b, true);
+  update();
+  if (innerWidth < 1080) { $('sidebar').classList.remove('open'); $('filterBtn').setAttribute('aria-expanded', false); }
+  const top = grid.getBoundingClientRect().top + scrollY - 200;
+  if (scrollY > top) scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+}));
+requestAnimationFrame(() => moveInd(current(), false));
+addEventListener('resize', () => moveInd(current(), false));
+
+function filtered() {
+  const terms = F.norm(state.q).split(/\s+/).filter(Boolean);
+  let res = idx.filter(({ p, hay }) =>
+    (!state.cat || p.cat === state.cat) &&
+    (!state.sub || p.sub.includes(state.sub)) &&
+    terms.every(t => hay.includes(t)));
+  if (terms.length && state.sort === 'rel') {
+    const n0 = terms.join(' ');
+    res = res.map(x => ({ ...x, s: F.norm(x.p.name).includes(n0) ? 0 : 1 })).sort((a, b) => a.s - b.s);
+  }
+  res = res.map(x => x.p);
+  if (state.sort === 'az') res.sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+  if (state.sort === 'za') res.sort((a, b) => b.name.localeCompare(a.name, 'pt'));
+  return res;
+}
+
+function syncUrl() {
+  const u = new URLSearchParams();
+  if (state.cat) u.set('cat', state.cat);
+  if (state.sub) u.set('sub', state.sub);
+  if (state.q) u.set('q', state.q);
+  history.replaceState(null, '', 'catalogo.html' + (u.toString() ? '?' + u : ''));
+}
+
+function heading() {
+  const name = state.cat ? F.CATS[state.cat] : '';
+  $('crumbSep').hidden = !name; $('crumbCat').textContent = name;
+  document.title = (name ? name + ' | ' : 'Catálogo de Produtos | ') + 'FeFER';
+  $('ghost').textContent = name || 'Catálogo';
+  if (heading.done && heading.last !== state.cat) {
+    const t = $('title');
+    t.innerHTML = name ? `<span class="hl">${F.esc(name)}</span>` : 'Nosso <span class="hl">catálogo</span>';
+    const w = F.splitWords(t);
+    if (M && !reduce) M.animate(w, { y:['110%','0%'], rotate:[6,0] }, { delay:M.stagger(.06), duration:.7, ease });
+  }
+  heading.last = state.cat; heading.done = true;
+}
+
+function renderSubs() {
+  const subs = [...new Set(F.PRODUCTS.filter(p => p.cat === state.cat).flatMap(p => p.sub))];
+  $('subs').innerHTML = subs.length && state.cat ? ['', ...subs].map(s =>
+    `<button class="chip" data-sub="${F.esc(s)}" aria-pressed="${s === state.sub}">${s ? F.esc(s) : 'Todos'}</button>`).join('') : '';
+  $('subs').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { state.sub = c.dataset.sub; state.shown = PAGE; update(); }));
+}
+
+function paint(items, append) {
+  if (!append) grid.innerHTML = '';
+  grid.insertAdjacentHTML('beforeend', items.map(p => F.card(p)).join(''));
+  F.enhance(grid);
+}
+
+function update() {
+  syncUrl(); heading(); renderSubs();
+  const res = filtered();
+  paint(res.slice(0, state.shown));
+  const total = res.length;
+  const filters = [state.cat && F.CATS[state.cat], state.sub, state.q].filter(Boolean);
+  $('count').innerHTML = total ? `<b>${total}</b> ${total === 1 ? 'produto' : 'produtos'}${state.q ? ` para "${F.esc(state.q)}"` : ''}` : '';
+  $('empty').hidden = total > 0;
+  $('emptyWa').href = F.wa(`Olá! Procuro: ${state.q || (state.cat ? F.CATS[state.cat] : 'um produto')}. Vocês trabalham com esse item?`);
+  $('moreWrap').hidden = state.shown >= total;
+  $('more').lastChild.textContent = `Carregar mais (${Math.max(0, total - state.shown)})`;
+}
+
+$('more').addEventListener('click', () => {
+  const before = grid.children.length;
+  state.shown += PAGE;
+  const res = filtered();
+  paint(res.slice(before, state.shown), true);
+  $('moreWrap').hidden = state.shown >= res.length;
+  $('more').lastChild.textContent = `Carregar mais (${Math.max(0, res.length - state.shown)})`;
+});
+
+let tq;
+qInput.addEventListener('input', () => { clearTimeout(tq); tq = setTimeout(() => { state.q = qInput.value.trim(); state.shown = PAGE; update(); }, 180); });
+$('sort').addEventListener('change', e => { state.sort = e.target.value; update(); });
+$('clearAll').addEventListener('click', () => { state.q = ''; state.sub = ''; qInput.value = ''; update(); qInput.focus(); });
+$('filterBtn').addEventListener('click', () => {
+  const sb = $('sidebar'), open = !sb.classList.contains('open');
+  sb.classList.toggle('open', open); $('filterBtn').setAttribute('aria-expanded', open);
+  if (open) { requestAnimationFrame(() => moveInd(current(), false)); if (M && !reduce) M.animate(sb, { opacity:[0,1], y:[-12,0] }, { duration:.4, ease }); }
+});
+
+/* busca do topo na mesma página */
+document.querySelectorAll('.search').forEach(f => f.addEventListener('submit', e => {
+  e.preventDefault(); state.q = f.q.value.trim(); qInput.value = state.q; state.shown = PAGE; update();
+  grid.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block:'start' });
+}));
+
+const title = $('title');
+if (state.cat) title.innerHTML = `<span class="hl">${F.esc(F.CATS[state.cat])}</span>`;
+title.setAttribute('data-split', '');
+update();
+})();
+</script>
+</body>
+</html>
