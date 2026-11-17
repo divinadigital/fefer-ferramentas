@@ -229,6 +229,11 @@ h2{font-size:clamp(2.4rem,5vw,4.2rem)}
 .social a.is-filled{color:var(--ink)}
 .social svg{width:18px;height:18px}
 .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:56px;padding-top:22px;font-size:.85rem;color:#8fb09a;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.legal .credit{white-space:nowrap}
+@media (min-width:700px){ .legal{padding-right:84px} }
+.legal .credit a{display:inline;padding:0;color:#cfe3d5;font-weight:600;transition:color .3s}
+.legal .credit a::after{bottom:-2px}
+.legal .credit a:hover{color:var(--yellow)}
 
 /* WhatsApp flutuante */
 .wa{position:fixed;right:20px;bottom:20px;z-index:60;width:60px;height:60px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 14px 30px -10px rgba(37,211,102,.7)}

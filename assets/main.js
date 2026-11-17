@@ -202,8 +202,8 @@ if (footerSlot) {
       </div>
     </div>
     <div class="legal">
-      <span>Fefer Comercial e Distribuidora de Produtos LTDA © ${new Date().getFullYear()}. Todos os direitos reservados.</span>
-      <span>CNPJ 35.063.488/0001-80</span>
+      <span>Fefer Comercial e Distribuidora de Produtos LTDA © ${new Date().getFullYear()}. Todos os direitos reservados. CNPJ 35.063.488/0001-80</span>
+      <span class="credit">Site feito por <a href="https://divinadigital.github.io/divina-digital-site" target="_blank" rel="noopener">Divina Digital</a></span>
     </div>
   </div>
 </footer>
