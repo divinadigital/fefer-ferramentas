@@ -206,7 +206,9 @@ h2{font-size:clamp(2.4rem,5vw,4.2rem)}
 .cta{background:var(--yellow);color:var(--ink);position:relative;overflow:hidden}
 .cta .wrap{display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;padding:clamp(56px,7vw,90px) 0;position:relative;z-index:1}
 .cta h2{font-size:clamp(2.2rem,4.6vw,3.8rem);max-width:720px}
-.cta .gear{position:absolute;right:-120px;top:50%;width:420px;height:420px;translate:0 -50%;opacity:.12;color:var(--ink)}
+.cta .gear{position:absolute;right:-130px;top:50%;width:460px;height:460px;margin-top:-230px;opacity:.11;color:var(--ink);animation:cta-gear 120s linear infinite;pointer-events:none}
+@keyframes cta-gear{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){ .cta .gear{animation:none} }
 .cta-actions{display:flex;gap:12px;flex-wrap:wrap}
 
 /* ============ FOOTER ============ */
